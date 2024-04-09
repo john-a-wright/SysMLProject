@@ -3,9 +3,9 @@ class VectorQuantizedAutoencoder(nn.Module):
         super().__init__()
         
         self.encoder = nn.Sequential(
-            nn.Conv2d(3, 192, kernel_size=2, stride=1, padding=1),
-            nn.Conv2d(192, 192, kernel_size=6, stride=3, padding=1),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv1d(3, 192, kernel_size=2, stride=1, padding=1),
+            nn.Conv1d(192, 192, kernel_size=6, stride=3, padding=1),
+            nn.MaxPool1d(kernel_size=2, stride=2),
             nn.GELU(),
             nn.Conv2d(192, 192, kernel_size=6, stride=3, padding=1),
             nn.Conv2d(192, 512, kernel_size=6, stride=3, padding=1),
