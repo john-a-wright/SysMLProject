@@ -1,14 +1,33 @@
+import numpy as np
+import torch
+import torch.nn as nn
+import IPython.display as disp
+from torch.utils.data import DataLoader
+from datasets import load_dataset
+from torchvision import transforms
+from vector_quantize_pytorch import FSQ
+from random import randint
+
 class VectorQuantizedAutoencoder(nn.Module):
-    def __init__(self, levels): 
+    def __init__(self, levels, compressed_d): 
+        """
+        compressed_d: compressed dimension of the embedding, 128 for SIFT1M
+        levels: levels of (Finite )FSQ
+        """
         super().__init__()
         
         self.encoder = nn.Sequential(
-            nn.Conv1d(3, 192, kernel_size=2, stride=1, padding=1),
-            nn.Conv1d(192, 192, kernel_size=6, stride=3, padding=1),
-            nn.MaxPool1d(kernel_size=2, stride=2),
-            nn.GELU(),
-            nn.Conv2d(192, 192, kernel_size=6, stride=3, padding=1),
-            nn.Conv2d(192, 512, kernel_size=6, stride=3, padding=1),
+            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.RELU(),
+            nn.Conv1d(32, compressed_d, kernel_size=3, stride=3, padding=1),
+            nn.RELU(),
+            nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=3, padding=1),
+            nn.RELU(),
+            nn.MaxPool1d(kernel_size=3, stride=2),
+            nn.RELU(),
+            nn.Conv1d(compressed_d, compressed_d, kernel_size=6, stride=3, padding=1),
+            nn.RELU(),
+            nn.AdaptiveAvgPool1d((1,))
         )
         
         self.fsq = FSQ(levels)
