@@ -61,10 +61,11 @@ if __name__ == "__main__":
 
     embedding = torch.randn(1, 1, 128)
     encoded = model.encoder(embedding)
-
     encoded = torch.permute(encoded, (0, 2, 1))
-    print("Shape of encoded vector: {encoded.shape}")
-    decoded = model.decoder(encoded)
+    encoded, indices = model.fsq(encoded)
+    print(f"Shape of encoded vector: {encoded.shape}")
+    print(f"Index of the fsq code-book: {indices}")
 
+    decoded = model.decoder(encoded)
     decoded = torch.permute(decoded, (0, 2, 1))
-    print("Shape of decoded vector: {decoded.shape}")
+    print(f"Shape of decoded vector: {decoded.shape}")
