@@ -1,49 +1,68 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import IPython.display as disp
 from torch.utils.data import DataLoader
-from datasets import load_dataset
 from torchvision import transforms
 from vector_quantize_pytorch import FSQ
 from random import randint
 
 class VectorQuantizedAutoencoder(nn.Module):
-    def __init__(self, levels, compressed_d): 
+    def __init__(self, levels, compressed_d, uncompressed_d = 128): 
         """
-        compressed_d: compressed dimension of the embedding, 128 for SIFT1M
+        uncompressed_d: uncompressed dimension of the embedding, 128 for SIFT1M
+        compressed_d: compressed dimension of the embedding
         levels: levels of (Finite )FSQ
         """
         super().__init__()
         
         self.encoder = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.RELU(),
+            nn.ReLU(),
             nn.Conv1d(32, compressed_d, kernel_size=3, stride=3, padding=1),
-            nn.RELU(),
+            nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=3, padding=1),
-            nn.RELU(),
+            nn.ReLU(),
             nn.MaxPool1d(kernel_size=3, stride=2),
-            nn.RELU(),
-            nn.Conv1d(compressed_d, compressed_d, kernel_size=6, stride=3, padding=1),
-            nn.RELU(),
+            nn.ReLU(),
+            nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=3, padding=1),
+            nn.ReLU(),
             nn.AdaptiveAvgPool1d((1,))
         )
         
         self.fsq = FSQ(levels)
         
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(512, 192, kernel_size=6, stride=3, padding=1),
-            nn.ConvTranspose2d(192, 192, kernel_size=6, stride=3, padding=0),
-            nn.GELU(),
-            nn.Upsample(scale_factor=2, mode="nearest"),
-            nn.ConvTranspose2d(192, 192, kernel_size=6, stride=3, padding=0),
-            nn.Conv2d(192, 3, kernel_size=2, stride=1, padding=1),
+            nn.ConvTranspose1d(1, 32, kernel_size=3, stride=3, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose1d(32, compressed_d, kernel_size=3, stride=3, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose1d(compressed_d, uncompressed_d, kernel_size=3, stride=3, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose1d(uncompressed_d, uncompressed_d, kernel_size=3, stride=3, padding=1),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool1d((1,))
         )
 
     def forward(self, x):
-        x = self.encoder(x)
-        x, indices = self.fsq(x)
-        x = self.decoder(x)
+        bottleneck = self.encoder(x)
+        bottleneck = torch.permute(bottleneck, (0, 2, 1))
 
-        return x.clamp(-1, 1), indices
+        bottleneck, indices = self.fsq(bottleneck)
+
+        reconstructed = self.decoder(bottleneck)
+        reconstructed = torch.permute(reconstructed, (0, 2, 1))
+
+        return reconstructed.clamp(-1, 1), indices
+
+if __name__ == "__main__":
+    #test
+    levels = [8,5,5,5]
+    model = VectorQuantizedAutoencoder(levels, 128//2)
+
+    embedding = torch.randn(1, 1, 128)
+    encoded = model.encoder(embedding)
+
+    encoded = torch.permute(encoded, (0, 2, 1))
+    decoded = model.decoder(encoded)
+    
+    decoded = torch.permute(decoded, (0, 2, 1))
