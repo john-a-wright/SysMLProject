@@ -55,7 +55,7 @@ class VectorQuantizedAutoencoder(nn.Module):
         return reconstructed.clamp(-1, 1), indices
 
 if __name__ == "__main__":
-    #test
+    # test for dimensionality
     levels = [8,5,5,5]
     model = VectorQuantizedAutoencoder(levels, 128//2)
 
@@ -63,6 +63,8 @@ if __name__ == "__main__":
     encoded = model.encoder(embedding)
 
     encoded = torch.permute(encoded, (0, 2, 1))
+    print("Shape of encoded vector: {encoded.shape}")
     decoded = model.decoder(encoded)
-    
+
     decoded = torch.permute(decoded, (0, 2, 1))
+    print("Shape of decoded vector: {decoded.shape}")
