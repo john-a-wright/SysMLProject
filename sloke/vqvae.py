@@ -56,8 +56,8 @@ class VectorQuantizedAutoencoder(nn.Module):
 
 if __name__ == "__main__":
     # test for dimensionality
-    levels = [8,5,5,5]
-    model = VectorQuantizedAutoencoder(levels, 128//2)
+    levels =  [8, 8, 8, 5, 5, 5]
+    model = VectorQuantizedAutoencoder(levels, len(levels))
 
     embedding = torch.randn(1, 1, 128)
     encoded = model.encoder(embedding)
