@@ -4,7 +4,6 @@ from etils.epath import Path
 import os
 import torch
 
-
 def test():
   print("dir: " + os.getcwd())
 
@@ -37,11 +36,13 @@ def get_train_split(splits):
 def get_test_split(splits):
   embeddingTuples = splits["test"]
   tensor_list = []
+  neighbors_list = []
   i = 0
 
   for tup in embeddingTuples:
       dict = tup[1]
       tensor_list.append(torch.tensor(dict["embedding"]))
+      neighbors_list.append(dict["neighbors"])
       i=i+1
       if i % 5000 == 0:
           print("Progress: " + str(i/100) + "%")
@@ -49,4 +50,4 @@ def get_test_split(splits):
   combined_tensor_test = torch.stack(tensor_list)
 
   input_array_test = combined_tensor_test.numpy()
-  return input_array_test
+  return input_array_test, neighbors_list
