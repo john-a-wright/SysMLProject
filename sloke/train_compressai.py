@@ -40,6 +40,7 @@ D = train_split.shape[1]
 
 loss_arr = np.array([])
 aux_loss_arr = np.array([])
+mse_loss_arr = np.array([])
 for i_epoch in range(EPOCHS):
     dataloader = DataLoader(train_split, batch_size=BATCH_SIZE, shuffle=True)
     for i_batch, batch in enumerate(dataloader):
@@ -70,13 +71,15 @@ for i_epoch in range(EPOCHS):
         print(f"Epoch: {i_epoch}, Batch: {i_batch}, loss: {loss}, aux_loss: {aux_loss}")
         loss_arr = np.append(loss_arr,loss.detach().cpu().numpy())
         aux_loss_arr = np.append(aux_loss_arr,aux_loss.detach().cpu().numpy())
+        mse_loss_arr = np.append(mse_loss_arr,mse_loss.detach().cpu().numpy())
 
         torch.save({
             'epoch': i_epoch,
             'model_state_dict':  model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss_arr': loss_arr,
-            'aux_loss_arr': aux_loss_arr
+            'aux_loss_arr': aux_loss_arr,
+            'mse_loss_arr': mse_loss_arr
         }, f"compressai_losses.pth")
 
 plt.plot(loss_arr)
