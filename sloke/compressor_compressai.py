@@ -1,6 +1,9 @@
 from compressai.models import CompressionModel
 from compressai.models.utils import conv, deconv
 import torch.nn as nn
+from compressai.entropy_models import EntropyBottleneck
+import torch
+
 
 class Network(CompressionModel):
     def __init__(self, compressed_d = 64, uncompressed_d = 128):
@@ -8,6 +11,7 @@ class Network(CompressionModel):
         compressed_d = compressed dimension of the embedding
         """
         super().__init__()
+        self.entropy_bottleneck = EntropyBottleneck(compressed_d)
         self.encoder = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
@@ -35,7 +39,11 @@ class Network(CompressionModel):
         )
     
     def forward(self, x):
-        y = self.encode(x)
+        y = self.encoder(x)
         y_hat, y_likelihoods = self.entropy_bottleneck(y)
-        x_hat = self.decode(y_hat)
+
+        y_hat = torch.permute(y_hat, (0, 2, 1))
+        x_hat = self.decoder(y_hat)
+        x_hat = torch.permute(x_hat, (0, 2, 1))
+
         return x_hat, y_likelihoods

@@ -6,6 +6,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import matplotlib.pyplot as plt
 import torch.nn as nn
+import math
 
 """
 copied stuff from https://interdigitalinc.github.io/CompressAI/tutorials/tutorial_custom.html
@@ -32,6 +33,9 @@ download_path = "../sift1m"
 splits = build_sift1m(download_path)
 train_split = get_train_split(splits)
 D = train_split.shape[1]
+
+
+
 
 
 loss_arr = np.array([])
@@ -63,7 +67,7 @@ for i_epoch in range(EPOCHS):
         optimizer.step()
         aux_loss = model.aux_loss()
         aux_optimizer.step()
-        print(f"Epoch: {i_epoch}, Batch: {i_batch}, loss: {rec_loss}, aux_loss: {aux_loss}")
+        print(f"Epoch: {i_epoch}, Batch: {i_batch}, loss: {loss}, aux_loss: {aux_loss}")
         loss_arr = np.append(loss_arr,loss.detach().cpu().numpy())
         aux_loss_arr = np.append(aux_loss_arr,aux_loss.detach().cpu().numpy())
 
