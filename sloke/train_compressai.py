@@ -1,15 +1,29 @@
 import torch.optim as optim
 from compressor_compressai import Network
 import torch.nn.functional as F
+from sit1m_data_preprocessing import *
+import numpy as np
+from torch.utils.data import Dataset, DataLoader
+import matplotlib.pyplot as plt
+import torch.nn as nn
 
 """
 copied stuff from https://interdigitalinc.github.io/CompressAI/tutorials/tutorial_custom.html
 """
 
+# hyperparamters    
+seed = 44
+EPOCHS = 40
+BATCH_SIZE = 64
+lmbda = 1 # parameter for bitrate distortion tradeoff
+
+torch.random.manual_seed(seed)
+model = Network(64).to("cuda:1")
+
 
 # parameters
-parameters = set(p for n, p in net.named_parameters() if not n.endswith(".quantiles"))
-aux_parameters = set(p for n, p in net.named_parameters() if n.endswith(".quantiles"))
+parameters = set(p for n, p in model.named_parameters() if not n.endswith(".quantiles"))
+aux_parameters = set(p for n, p in model.named_parameters() if n.endswith(".quantiles"))
 optimizer = optim.Adam(parameters, lr=1e-4)
 aux_optimizer = optim.Adam(aux_parameters, lr=1e-3)
 
@@ -17,16 +31,7 @@ aux_optimizer = optim.Adam(aux_parameters, lr=1e-3)
 download_path = "../sift1m"
 splits = build_sift1m(download_path)
 train_split = get_train_split(splits)
-
-# hyperparamters    
-seed = 44
-EPOCHS = 40
-BATCH_SIZE = 64
-lmbda = 1 # parameter for bitrate distortion tradeoff
 D = train_split.shape[1]
-
-torch.random.manual_seed(seed)
-model = Network().to("cuda:1")
 
 
 loss_arr = np.array([])

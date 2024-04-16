@@ -1,8 +1,12 @@
 from compressai.models import CompressionModel
 from compressai.models.utils import conv, deconv
+import torch.nn as nn
 
 class Network(CompressionModel):
-    def __init__(self, N=128):
+    def __init__(self, compressed_d = 64, uncompressed_d = 128):
+        """
+        compressed_d = compressed dimension of the embedding
+        """
         super().__init__()
         self.encoder = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
@@ -29,9 +33,9 @@ class Network(CompressionModel):
             nn.ReLU(),
             nn.AdaptiveAvgPool1d((1,))
         )
-
-   def forward(self, x):
-       y = self.encode(x)
-       y_hat, y_likelihoods = self.entropy_bottleneck(y)
-       x_hat = self.decode(y_hat)
-       return x_hat, y_likelihoods
+    
+    def forward(self, x):
+        y = self.encode(x)
+        y_hat, y_likelihoods = self.entropy_bottleneck(y)
+        x_hat = self.decode(y_hat)
+        return x_hat, y_likelihoods
