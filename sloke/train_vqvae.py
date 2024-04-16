@@ -16,7 +16,7 @@ train_split = get_train_split(splits)
 
 lr = 3
 seed = 44
-levels = [8]*4 + [5]*60
+levels = [8]*5 + [5]*5
 EPOCHS = 40
 BATCH_SIZE = 64
 D = train_split.shape[1]
