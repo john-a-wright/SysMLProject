@@ -31,8 +31,27 @@ aux_optimizer = optim.Adam(aux_parameters, lr=1e-3)
 # data
 download_path = "../sift1m"
 splits = build_sift1m(download_path)
+
+# can replace the below
 train_split = get_train_split(splits)
+
+# file_path = 'train_data.npy'
+
+# train_input_array = []
+
+# if os.path.exists(file_path):
+#     train_input_array = np.load(file_path)
+# else:
+#     # make and print train split input array (1 million embedding arrays of length 128)
+#     train_input_array = get_train_split(splits)
+
+#     np.save(file_path, train_input_array)
+
+# print(train_input_array)
+# print(train_input_array.shape[1])
+
 D = train_split.shape[1]
+
 
 
 

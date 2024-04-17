@@ -3,3 +3,5 @@ DS_Store
 .gitingore
 sift1m
 *.pth
+*.png
+*.jpg

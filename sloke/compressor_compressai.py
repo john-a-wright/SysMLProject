@@ -23,7 +23,10 @@ class Network(CompressionModel):
             nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=3, padding=1),
             nn.ReLU(),
-            nn.AdaptiveAvgPool1d((1,))
+            nn.AdaptiveAvgPool1d((1,)),
+            nn.Linear(compressed_d, compressed_d),
+            nn.ReLU(),
+            nn.Linear(compressed_d, compressed_d)
         )
 
         self.decoder = nn.Sequential(
@@ -35,7 +38,10 @@ class Network(CompressionModel):
             nn.ReLU(),
             nn.ConvTranspose1d(uncompressed_d, uncompressed_d, kernel_size=3, stride=3, padding=1),
             nn.ReLU(),
-            nn.AdaptiveAvgPool1d((1,))
+            nn.AdaptiveAvgPool1d((1,)),
+            nn.Linear(uncompressed_d, uncompressed_d),
+            nn.ReLU(),
+            nn.Linear(uncompressed_d, uncompressed_d)
         )
     
     def forward(self, x):
