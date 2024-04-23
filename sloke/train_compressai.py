@@ -79,13 +79,13 @@ for i_epoch in range(EPOCHS):
         'epoch': i_epoch,
         'model_state_dict':  model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'bpp_loss': bpp_loss,
+        'bpp_loss_arr': bpp_loss_arr,
         'aux_loss_arr': aux_loss_arr,
         'mse_loss_arr': mse_loss_arr
-    }, f"compressai_losses_1.pth")
+    }, f"compressai_losses_2.pth")
 
 plt.plot(mse_loss_arr, legend="Reconstruction MSE loss")
 plt.plot(aux_loss_arr, legend = "Auxiliary loss")
 plt.plot(bpp_loss, legend = "Compression loss")
 plt.legend()
-plt.savefig("compressai_losses_1.png")
+plt.savefig("compressai_losses_2.png")
