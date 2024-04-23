@@ -57,16 +57,13 @@ class Network(CompressionModel):
             nn.ReLU(),
             nn.ConvTranspose1d(uncompressed_d//2, uncompressed_d//2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.BatchNorm1d(uncompressed_d//2),
             nn.ConvTranspose1d(uncompressed_d//2, 1, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.LazyLinear(uncompressed_d),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.BatchNorm1d(1),
             nn.LazyLinear(uncompressed_d),
-            nn.Dropout(0.5),
-            nn.BatchNorm1d(1)
+            nn.Dropout(0.5)
         )
     
     def forward(self, x):
