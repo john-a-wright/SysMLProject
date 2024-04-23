@@ -35,31 +35,14 @@ splits = build_sift1m(download_path)
 # can replace the below
 train_split = get_train_split(splits)
 
-# file_path = 'train_data.npy'
-
-# train_input_array = []
-
-# if os.path.exists(file_path):
-#     train_input_array = np.load(file_path)
-# else:
-#     # make and print train split input array (1 million embedding arrays of length 128)
-#     train_input_array = get_train_split(splits)
-
-#     np.save(file_path, train_input_array)
-
-# print(train_input_array)
-# print(train_input_array.shape[1])
-
 D = train_split.shape[1]
 
 
-
-
-
-
-loss_arr = np.array([])
+bpp_loss_arr = np.array([])
 aux_loss_arr = np.array([])
 mse_loss_arr = np.array([])
+
+
 for i_epoch in range(EPOCHS):
     dataloader = DataLoader(train_split, batch_size=BATCH_SIZE, shuffle=True)
     for i_batch, batch in enumerate(dataloader):
@@ -70,7 +53,7 @@ for i_epoch in range(EPOCHS):
         optimizer.zero_grad()
         aux_optimizer.zero_grad()
 
-        x_hat, y_likelihoods = model(x)
+        _, x_hat, y_likelihoods = model(x)
 
          # bitrate of the quantized latent
         N, _, L = x.size()
@@ -88,19 +71,21 @@ for i_epoch in range(EPOCHS):
         aux_loss = model.aux_loss()
         aux_optimizer.step()
         print(f"Epoch: {i_epoch}, Batch: {i_batch}, loss: {loss}, aux_loss: {aux_loss}")
-        loss_arr = np.append(loss_arr,loss.detach().cpu().numpy())
-        aux_loss_arr = np.append(aux_loss_arr,aux_loss.detach().cpu().numpy())
-        mse_loss_arr = np.append(mse_loss_arr,mse_loss.detach().cpu().numpy())
+        bpp_loss_arr = np.append(bpp_loss_arr, bpp_loss.detach().cpu().numpy())
+        aux_loss_arr = np.append(aux_loss_arr, aux_loss.detach().cpu().numpy())
+        mse_loss_arr = np.append(mse_loss_arr, mse_loss.detach().cpu().numpy())
 
-        torch.save({
-            'epoch': i_epoch,
-            'model_state_dict':  model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss_arr': loss_arr,
-            'aux_loss_arr': aux_loss_arr,
-            'mse_loss_arr': mse_loss_arr
-        }, f"compressai_losses.pth")
+    torch.save({
+        'epoch': i_epoch,
+        'model_state_dict':  model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'bpp_loss': bpp_loss,
+        'aux_loss_arr': aux_loss_arr,
+        'mse_loss_arr': mse_loss_arr
+    }, f"compressai_losses_1.pth")
 
-plt.plot(loss_arr)
-plt.plot(aux_loss_arr)
-plt.savefig("compressai_losses.png")
+plt.plot(mse_loss_arr, legend="Reconstruction MSE loss")
+plt.plot(aux_loss_arr, legend = "Auxiliary loss")
+plt.plot(bpp_loss, legend = "Compression loss")
+plt.legend()
+plt.savefig("compressai_losses_1.png")

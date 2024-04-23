@@ -37,7 +37,7 @@ for i_epoch in range(EPOCHS):
         x = x.reshape(BATCH_SIZE, 1, D)
 
         optimizer.zero_grad()
-        out, indices = model(x)
+        _, out, indices = model(x)
 
         rec_loss = loss(out, x)
         rec_loss.backward()
@@ -53,4 +53,5 @@ for i_epoch in range(EPOCHS):
         }, f"vqvae_vimeo_checkpoint.pth")
 
 plt.plot(log_loss)
+plt.legend()
 plt.savefig("vqvae_vimeo_loss.png")
