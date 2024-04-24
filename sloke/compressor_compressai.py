@@ -4,6 +4,12 @@ import torch.nn as nn
 from compressai.entropy_models import EntropyBottleneck
 import torch
 
+import torch.nn.functional as F
+from torch import Tensor
+from compressai.ops.parametrizers import NonNegativeParametrizer
+
+__all__ = ["GDN_1d", "GDN1_1d"]
+
 #zlib
 
 class GDN_1d(nn.Module):
@@ -59,7 +65,7 @@ class GDN_1d(nn.Module):
 
         return out
 
-class GDN1_1d(GDN):
+class GDN1_1d(GDN_1d):
     r"""Simplified GDN layer.
 
     Introduced in `"Computationally Efficient Neural Image Compression"
@@ -98,18 +104,18 @@ class Network(CompressionModel):
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv1d(32, compressed_d, kernel_size=3, stride=1, padding=1),
-            nn.GDN1_1d(compressed_d),
+            GDN1_1d(compressed_d),
             nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=3, stride=2),
             nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=1, padding=1),
-            nn.GDN1_1d(compressed_d),
+            GDN1_1d(compressed_d),
             nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d//2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv1d(compressed_d//2, 1, kernel_size=3, stride=1, padding=1),
-            nn.GDN1_1d(),
+            GDN1_1d(1),
             nn.LazyLinear(compressed_d),
             nn.BatchNorm1d(1),
             nn.ReLU(),
