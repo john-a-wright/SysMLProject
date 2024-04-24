@@ -82,10 +82,10 @@ for i_epoch in range(EPOCHS):
         'bpp_loss_arr': bpp_loss_arr,
         'aux_loss_arr': aux_loss_arr,
         'mse_loss_arr': mse_loss_arr
-    }, f"compressai_losses_2.pth")
+    }, f"compressai_losses_3.pth")
 
 plt.plot(mse_loss_arr, label="Reconstruction MSE loss")
 plt.plot(aux_loss_arr, label = "Auxiliary loss")
 plt.plot(bpp_loss_arr, label = "Compression loss")
 plt.legend()
-plt.savefig("compressai_losses_2.png")
+plt.savefig("compressai_losses_3.png")
