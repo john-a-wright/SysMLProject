@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor
 from compressai.ops.parametrizers import NonNegativeParametrizer
+from compressai.layers import AttentionBlock
 
 __all__ = ["GDN_1d", "GDN1_1d"]
 
@@ -110,12 +111,12 @@ class Network(CompressionModel):
             nn.MaxPool1d(kernel_size=3, stride=2),
             nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d, kernel_size=3, stride=1, padding=1),
-            GDN1_1d(compressed_d),
+            nn.ReLU(), # removed GDN layer
             nn.ReLU(),
             nn.Conv1d(compressed_d, compressed_d//2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv1d(compressed_d//2, 1, kernel_size=3, stride=1, padding=1),
-            GDN1_1d(1),
+            nn.ReLu(), # removed GDN layer
             nn.LazyLinear(compressed_d),
             nn.BatchNorm1d(1),
             nn.ReLU(),
@@ -129,9 +130,9 @@ class Network(CompressionModel):
             nn.ConvTranspose1d(32, compressed_d, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm1d(compressed_d),
-            nn.ConvTranspose1d(compressed_d, uncompressed_d, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose1d(compressed_d, uncompressed_d*2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose1d(uncompressed_d, uncompressed_d, kernel_size=3, stride=1, padding=1),
+            nn.ConvTranspose1d(uncompressed_d*2, uncompressed_d, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.BatchNorm1d(uncompressed_d),
             nn.ConvTranspose1d(uncompressed_d, uncompressed_d, kernel_size=3, stride=1, padding=1),
@@ -141,6 +142,8 @@ class Network(CompressionModel):
             nn.ConvTranspose1d(uncompressed_d//2, uncompressed_d//2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.ConvTranspose1d(uncompressed_d//2, 1, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.LazyLinear(uncompressed_d),
             nn.ReLU(),
             nn.LazyLinear(uncompressed_d),
             nn.ReLU(),
