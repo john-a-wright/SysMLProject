@@ -16,10 +16,10 @@ copied stuff from https://interdigitalinc.github.io/CompressAI/tutorials/tutoria
 seed = 44
 EPOCHS = 40
 BATCH_SIZE = 64
-lmbda = 1 # parameter for bitrate distortion tradeoff
+lmbda = 1/1000000 # parameter for bitrate distortion tradeoff
 
 torch.random.manual_seed(seed)
-model = Network(64).to("cuda:1")
+model = Network(32).to("cuda:1")
 
 
 # parameters
@@ -82,10 +82,10 @@ for i_epoch in range(EPOCHS):
         'bpp_loss_arr': bpp_loss_arr,
         'aux_loss_arr': aux_loss_arr,
         'mse_loss_arr': mse_loss_arr
-    }, f"compressai_losses_3.pth")
+    }, f"compressai_losses_5.pth")
 
 plt.plot(mse_loss_arr, label="Reconstruction MSE loss")
 plt.plot(aux_loss_arr, label = "Auxiliary loss")
 plt.plot(bpp_loss_arr, label = "Compression loss")
 plt.legend()
-plt.savefig("compressai_losses_3.png")
+plt.savefig("compressai_losses_5.png")

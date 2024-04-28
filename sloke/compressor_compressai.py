@@ -116,7 +116,7 @@ class Network(CompressionModel):
             nn.Conv1d(compressed_d, compressed_d//2, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv1d(compressed_d//2, 1, kernel_size=3, stride=1, padding=1),
-            nn.ReLu(), # removed GDN layer
+            nn.ReLU(), # removed GDN layer
             nn.LazyLinear(compressed_d),
             nn.BatchNorm1d(1),
             nn.ReLU(),
