@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from vector_quantize_pytorch import FSQ
 from random import randint
+from torchviz import make_dot
 
 class VectorQuantizedAutoencoder(nn.Module):
     def __init__(self, levels): 
@@ -38,11 +39,10 @@ class VectorQuantizedAutoencoder(nn.Module):
         return x.clamp(-1, 1), indices
 
 if __name__ == "__main__":
-    img = torch.rand(1, 3, 256, 256)
-    levels = [8,5,5,5]
+    x = torch.rand(1, 1, 128)
+    levels = [8, 8, 8, 5, 5, 5]
 
     model = VectorQuantizedAutoencoder(levels)
-    encode = model.analysis_transform(img)
-    print("shape of the synthesis_transformed data: ${encode.shape}")
 
-    encode, indices = model.fsq(encode)
+    dot = make_dot(model(x), params = dict(model.named_parameters()))
+    dot.render("vqvae_fsq", format="png")

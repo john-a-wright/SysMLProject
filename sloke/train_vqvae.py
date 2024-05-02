@@ -14,9 +14,9 @@ splits = build_sift1m(download_path)
 train_split = get_train_split(splits)
 
 
-lr = 3
+lr = 3e-3
 seed = 44
-levels = [8]*5 + [5]*5
+levels =  [8, 8, 8, 5, 5, 5]
 EPOCHS = 40
 BATCH_SIZE = 64
 D = train_split.shape[1]
@@ -37,7 +37,7 @@ for i_epoch in range(EPOCHS):
         x = x.reshape(BATCH_SIZE, 1, D)
 
         optimizer.zero_grad()
-        _, out, indices = model(x)
+        out, indices = model(x)
 
         rec_loss = loss(out, x)
         rec_loss.backward()
@@ -45,13 +45,13 @@ for i_epoch in range(EPOCHS):
         print(f"Epoch: {i_epoch}, Batch: {i_batch}, Loss: {rec_loss}")
         log_loss = np.append(log_loss,np.log(rec_loss.detach().cpu().numpy()))
 
-        torch.save({
-            'epoch': i_epoch,
-            'model_state_dict':  model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'log_loss': log_loss,
-        }, f"vqvae_vimeo_checkpoint.pth")
+    torch.save({
+        'epoch': i_epoch,
+        'model_state_dict':  model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'log_loss': log_loss,
+    }, f"fsq_vqvae.pth")
 
-plt.plot(log_loss)
+plt.plot(log_loss, label = "log loss")
 plt.legend()
-plt.savefig("vqvae_vimeo_loss.png")
+plt.savefig("vqvae_fsq_loss.png")

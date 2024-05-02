@@ -10,17 +10,21 @@ import matplotlib.pyplot as plt
 import torch.nn as nn
 import math
 
-checkpoint = torch.load("compressai_losses_2.pth")
+checkpoint = torch.load("compressai_losses.pth")
+plt.rcParams.update({'font.size': 11}) 
 
-bpp_loss_arr = checkpoint["bpp_loss_arr"]
-aux_loss_arr = checkpoint["aux_loss_arr"]
+# log_loss_arr = checkpoint["log_loss"]
+# # aux_loss_arr = checkpoint["aux_loss_arr"]
 mse_loss_arr = checkpoint["mse_loss_arr"]
+# loss_arr = checkpoint["loss_arr"]
 
-plt.plot(mse_loss_arr, label="Reconstruction MSE loss")
-plt.plot(aux_loss_arr, label = "Auxiliary loss")
-plt.plot(bpp_loss_arr, label = "Compression loss")
+# plt.plot(log_loss_arr, label="log loss")
+plt.plot(mse_loss_arr, label = "Reconstruction loss")
+# plt.plot(loss_arr, label = "Compression loss")
 plt.legend()
-plt.savefig("test_2.png")
+plt.xlabel("# Batch")
+plt.ylabel("Loss")
+plt.savefig("compressor_loss.png")
 
 
 # hyperparamters    

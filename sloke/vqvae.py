@@ -4,6 +4,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from vector_quantize_pytorch import FSQ
 from random import randint
+from torchviz import make_dot
+from torchsummary import summary
 
 class VectorQuantizedAutoencoder(nn.Module):
     def __init__(self, levels, compressed_d, uncompressed_d = 128): 
@@ -56,15 +58,22 @@ class VectorQuantizedAutoencoder(nn.Module):
 if __name__ == "__main__":
     # test for dimensionality
     levels =  [8, 8, 8, 5, 5, 5]
-    model = VectorQuantizedAutoencoder(levels, len(levels))
+    model = VectorQuantizedAutoencoder(levels, len(levels)).to(
+        torch.device("cuda")
+    )
 
-    embedding = torch.randn(1, 1, 128)
-    encoded = model.encoder(embedding)
-    encoded = torch.permute(encoded, (0, 2, 1))
-    encoded, indices = model.fsq(encoded)
-    print(f"Shape of encoded vector: {encoded.shape}")
-    print(f"Index of the fsq code-book: {indices}")
+    x = torch.rand(1, 1, 128)
+    # vis_graph = make_dot(model(x), params = dict(model.named_parameters()))
+    # vis_graph.render("vqvae_fsq", format="png")
+    print(summary(model, (1,128)))
 
-    decoded = model.decoder(encoded)
-    decoded = torch.permute(decoded, (0, 2, 1))
-    print(f"Shape of decoded vector: {decoded.shape}")
+    # embedding = torch.randn(1, 1, 128)
+    # encoded = model.encoder(embedding)
+    # encoded = torch.permute(encoded, (0, 2, 1))
+    # encoded, indices = model.fsq(encoded)
+    # print(f"Shape of encoded vector: {encoded.shape}")
+    # print(f"Index of the fsq code-book: {indices}")
+
+    # decoded = model.decoder(encoded)
+    # decoded = torch.permute(decoded, (0, 2, 1))
+    # print(f"Shape of decoded vector: {decoded.shape}")
